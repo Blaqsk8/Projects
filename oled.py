@@ -1,11 +1,11 @@
 # SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
 # SPDX-License-Identifier: MIT
- 
+
 """
 This test will initialize the display using displayio and draw a solid white
 background, a smaller black rectangle, and some white text.
 """
- 
+
 import board
 import busio
 import displayio
@@ -35,7 +35,7 @@ button_a.direction = Direction.INPUT
 button_b.direction = Direction.INPUT
 button_c.direction = Direction.INPUT
 
-# Set Pullup 
+# Set Pullup
 button_a.pull = Pull.UP
 button_b.pull = Pull.UP
 button_c.pull = Pull.UP
@@ -45,7 +45,7 @@ button_c.pull = Pull.UP
 # These are the defaults you should use for the GPS FeatherWing.
 # For other boards set RX = GPS module TX, and TX = GPS module RX pins.
 uart = busio.UART(board.TX, board.RX, baudrate=9600, timeout=10)
- 
+
 # for a computer, use the pyserial library for uart access
 # import serial
 # uart = serial.Serial("/dev/ttyUSB0", baudrate=9600, timeout=10)
@@ -57,13 +57,13 @@ gps = adafruit_gps.GPS(uart, debug=False)  # Use UART/pyserial
 # Create a GPS module instance.
 gps = adafruit_gps.GPS(uart, debug=False)  # Use UART/pyserial
 # gps = adafruit_gps.GPS_GtopI2C(i2c, debug=False)  # Use I2C interface
- 
+
 # Initialize the GPS module by changing what data it sends and at what rate.
 # These are NMEA extensions for PMTK_314_SET_NMEA_OUTPUT and
 # PMTK_220_SET_NMEA_UPDATERATE but you can send anything from here to adjust
 # the GPS module behavior:
 #   https://cdn-shop.adafruit.com/datasheets/PMTK_A11.pdf
- 
+
 # Turn on the basic GGA and RMC info (what you typically want)
 gps.send_command(b"PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0")
 # Turn on just minimum info (RMC only, location):
@@ -72,7 +72,7 @@ gps.send_command(b"PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0")
 # gps.send_command(b'PMTK314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0')
 # Turn on everything (not all of it is parsed!)
 # gps.send_command(b'PMTK314,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0')
- 
+
 # Set update rate to once a second (1hz) which is what you typically want.
 gps.send_command(b"PMTK220,1000")
 # Or decrease to once every two seconds by doubling the millisecond value.
@@ -93,11 +93,11 @@ display = adafruit_displayio_sh1107.SH1107(display_bus, width=128, height=64)
 #Create Lines of text
 splash = displayio.Group()
 line1 = label.Label(terminalio.FONT, text="                ",
-    color=0xFFFFFF, x=2, y=3)
+    color=0xFFFF00, x=2, y=3)
 line2 = label.Label(terminalio.FONT, text="                ",
-    color=0xFFFFFF, x=2, y=13)
+    color=0xFFFF00, x=2, y=13)
 line3 = label.Label(terminalio.FONT, text="                ",
-    color=0xFFFFFF, x=2, y=23)
+    color=0xFFFF00, x=2, y=23)
 
 splash.append(line1)
 splash.append(line2)
@@ -131,13 +131,14 @@ def display_temp():
             last_print = current
             temp_f = round(adt.temperature*1.8 + 32, 2)
             temp_c = round(adt.temperature, 2)
+            print(gps.timestamp_utc.tm_hour)
             if gps.timestamp_utc.tm_hour >= 0 and gps.timestamp_utc.tm_hour <= 3:
                 time_hf = gps.timestamp_utc.tm_hour + 20
             if gps.timestamp_utc.tm_hour >= 4 and gps.timestamp_utc.tm_hour <= 23:
                 time_hf = gps.timestamp_utc.tm_hour - 4
             if time_hf > 12:
                 time_h = time_hf - 12
-            time_f = "{:02}:{:02}:{:02}".format(time_h,
+            time_f = "{:02}:{:02}:{:02}".format(time_hf,
                     gps.timestamp_utc.tm_min,
                     gps.timestamp_utc.tm_sec)
             line1.text = "Time: " + time_f
@@ -166,7 +167,7 @@ def display_orientation():
 
 # Main loop runs forever printing the location, etc. every second.
 last_print = time.monotonic()
- 
+
 while True:
     gps.update()
     # Every second print out current location details if there's a fix.
@@ -208,12 +209,12 @@ while True:
         if gps.height_geoid is not None:
             print("Height geo ID: {} meters".format(gps.height_geoid))
         temp_f = round(adt.temperature*1.8 + 32, 1)
-        
+
         if not button_a.value:
             display_loc()
-            
+
         if not button_b.value:
             display_temp()
-            
+
         if not button_c.value:
             display_orientation()
