@@ -133,11 +133,11 @@ def display_temp():
             temp_c = round(adt.temperature, 2)
             print(gps.timestamp_utc.tm_hour)
             if gps.timestamp_utc.tm_hour >= 0 and gps.timestamp_utc.tm_hour <= 3:
-                time_hf = gps.timestamp_utc.tm_hour + 20
+                time_hf = gps.timestamp_utc.tm_hour + 8
+            if gps.timestamp_utc.tm_hour = 4:
+                time_hf = 12
             if gps.timestamp_utc.tm_hour >= 4 and gps.timestamp_utc.tm_hour <= 23:
                 time_hf = gps.timestamp_utc.tm_hour - 4
-            if time_hf > 12:
-                time_h = time_hf - 12
             time_f = "{:02}:{:02}:{:02}".format(time_hf,
                     gps.timestamp_utc.tm_min,
                     gps.timestamp_utc.tm_sec)
